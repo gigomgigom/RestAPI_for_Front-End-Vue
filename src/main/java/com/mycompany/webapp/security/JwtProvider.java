@@ -28,8 +28,13 @@ public class JwtProvider {
 	//서명 및 암호화를 위한 SecretKey 생성
 	private SecretKey secretKey;
 	
+	//@Value("${jwt.security.key}")
+	private String jwtSecurityKey;
+	
 	//생성자
 	public JwtProvider(@Value("${jwt.security.key}") String jwtSecurityKey) {
+		
+		log.info(jwtSecurityKey);
 		try {
 			//application.property에서 문자열 키를 읽고, SecretKey를 생성한다.
 			secretKey = Keys.hmacShaKeyFor(jwtSecurityKey.getBytes("UTF-8"));
@@ -99,21 +104,34 @@ public class JwtProvider {
         return autority;
     }	
 	
+    
+    /*
+    //Test 용도로 사용하기 (Run As - Java Application)
 	public static final void main(String[] args) {
 		JwtProvider jwtProvider = new JwtProvider("com.mycompany.jsonwebtoken.kosacourse");
 		
 		String accessToken = jwtProvider.createAccessToken("user", "ROLE_USER");
 		log.info("AccessToken: " + accessToken);
 		
-		/*Jws<Claims> jws = jwtProvider.validateToken(accessToken);
+		try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+		
+		Jws<Claims> jws = jwtProvider.validateToken(accessToken);
 		log.info("validate: " + ((jws!=null)? true : false));
 		
-		String userId = jwtProvider.getUserId(jws);
-		log.info("userId: " + userId);
 		
-		String autority = jwtProvider.getAuthority(jws);
-		log.info("autority: " + autority); */
-	}
+		if(jws != null) {
+			String userId = jwtProvider.getUserId(jws);
+			log.info("userId: " + userId);
+			
+			String autority = jwtProvider.getAuthority(jws);
+			log.info("autority: " + autority); 
+		}
+	}*/
 }
 
 
