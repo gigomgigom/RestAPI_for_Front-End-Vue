@@ -28,9 +28,6 @@ public class JwtProvider {
 	//서명 및 암호화를 위한 SecretKey 생성
 	private SecretKey secretKey;
 	
-	//@Value("${jwt.security.key}")
-	private String jwtSecurityKey;
-	
 	//생성자
 	public JwtProvider(@Value("${jwt.security.key}") String jwtSecurityKey) {
 		

@@ -10,6 +10,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -51,8 +54,10 @@ public class BoardController {
 		return map;
 	}
 	
+	//@Secured("ROLE_USER") 2.7과 3.X 스프링 버전에서 사용되지 않음
+	@PreAuthorize("hasAuthoriity('ROLE_USER')")
 	@PostMapping("/create")
-	public Board create(Board board) {
+	public Board create(Board board, Authentication authentication) {
 		//받아온 데이터중에서 첨부파일 존재 여부에 따라 DB에 파일 추가 여부를 결정한다.
 		if(board.getBattach() != null && !board.getBattach().isEmpty()) {
 			//받아온 
@@ -65,7 +70,7 @@ public class BoardController {
 				e.printStackTrace();
 			}
 		}
-		board.setBwriter("user");
+		board.setBwriter(authentication.getName());
 		
 		boardService.insert(board);
 		
@@ -75,6 +80,7 @@ public class BoardController {
 		return board;
 	}
 	
+	
 	@GetMapping("/read/{bno}")
 	public Board read(@PathVariable int bno) {
 		Board board = boardService.getBoard(bno);
@@ -82,6 +88,7 @@ public class BoardController {
 		return board;
 	}
 	
+	@Secured("ROLE_USER")
 	@PutMapping("/update")
 	public Board update(Board board) {
 		if(board.getBattach() != null && !board.getBattach().isEmpty()) {
@@ -105,6 +112,7 @@ public class BoardController {
 		return board;
 	}
 	
+	@Secured("ROLE_USER")
 	@DeleteMapping("/delete/{bno}")
 	public void delete(@PathVariable int bno) {
 		boardService.delete(bno);

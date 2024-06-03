@@ -3,10 +3,13 @@ package com.mycompany.webapp.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -32,7 +35,8 @@ public class WebSecurityConfig {
 		//로그인 폼은 front-end에서 제공
 		http.formLogin(config -> config.disable());
 
-		//RestApi에서는 폼 데이터를 받지도 않아서 csrf토큰을 발급할 필요가 없고
+		//RestApi에서는 폼 데이터를 받지도 않아서 csrf토큰(사이트간 요청위조방지)을 발급할 필요가 없고
+		http.csrf(config -> config.disable()); //csrf 비활성화 (GET 방식 이외의 요청은 _csrf 토큰을 요구하기 때문이다)
 		//로그아웃도 세션방식 인증관리가 아니기때문에 로그아웃 설정을 할 필요가 없다.
 		
 		//세션과 관련된 모든 작업들을 막기 위해서 HttpSession을 비활성화시킨다.
@@ -47,7 +51,8 @@ public class WebSecurityConfig {
 		return http.build();
 	}
 	
-	//인증 관리자을 관리 객체로 등록 
+	//인증 관리자을 관리 객체로 등록
+	//사용하지 않음. 유저 정보에 접근하기에는 너무 제한적이다. (추후 공부해봐야함)
 	@Bean
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
@@ -60,6 +65,14 @@ public class WebSecurityConfig {
 		hierarchy.setHierarchy("ROLE_ADMIN > ROLE_MANAGER > ROLE_USER");
 		return hierarchy;
 	}
+	
+	//@PreAuthorize 어노테이션의 표현식을 해석하는 객체 등록
+	@Bean
+    public MethodSecurityExpressionHandler createExpressionHandler() {
+      DefaultMethodSecurityExpressionHandler handler = new DefaultMethodSecurityExpressionHandler();
+        handler.setRoleHierarchy(roleHierarchy());
+        return handler;
+    }
 	
 	//다른(크로스) 도메인 제한 설정
 	public CorsConfigurationSource corsConfigurationSource() {
