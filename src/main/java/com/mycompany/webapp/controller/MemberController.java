@@ -36,9 +36,9 @@ public class MemberController {
 	private MemberService memberService;
 	
 	@PostMapping("/login")
-	public Map<String, String> userLogin(String userId, String userPassword) {
+	public Map<String, String> userLogin(String mid, String mpassword) {
 		//사용자 상세 정보 얻기
-		AppUserDetails userDetails = (AppUserDetails) userDetailsService.loadUserByUsername(userId);
+		AppUserDetails userDetails = (AppUserDetails) userDetailsService.loadUserByUsername(mid);
 		
 		PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 		
@@ -46,17 +46,17 @@ public class MemberController {
 		Map<String, String> resultMap = new HashMap<>();
 		
 		//비밀번호 체크를 해서 일치할 경우
-		if(passwordEncoder.matches(userPassword, userDetails.getMember().getMpassword())) {
+		if(passwordEncoder.matches(mpassword, userDetails.getMember().getMpassword())) {
 			//인증 객체 생성
 			Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, null);
 			//스프링 시큐리티에 인증 객체를 추가
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 			
 			//AccessToken 생성
-			String accessToken = jwtProvider.createAccessToken(userId, userDetails.getMember().getMrole());
+			String accessToken = jwtProvider.createAccessToken(mid, userDetails.getMember().getMrole());
 			//JSON 응답 생성
 			resultMap.put("result", "success");
-			resultMap.put("userId", userId);
+			resultMap.put("mid", mid);
 			resultMap.put("accessToken", accessToken);
 		} else {
 			resultMap.put("result", "fail");
