@@ -55,7 +55,7 @@ public class BoardController {
 	}
 	
 	//@Secured("ROLE_USER") 2.7과 3.X 스프링 버전에서 사용되지 않음
-	@PreAuthorize("hasAuthoriity('ROLE_USER')")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	@PostMapping("/create")
 	public Board create(Board board, Authentication authentication) {
 		//받아온 데이터중에서 첨부파일 존재 여부에 따라 DB에 파일 추가 여부를 결정한다.
@@ -80,15 +80,16 @@ public class BoardController {
 		return board;
 	}
 	
-	
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	@GetMapping("/read/{bno}")
 	public Board read(@PathVariable int bno) {
 		Board board = boardService.getBoard(bno);
+		//JSON으로 전달되지 않는 데이터는 null 처리
 		board.setBattachdata(null);
 		return board;
 	}
 	
-	@Secured("ROLE_USER")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	@PutMapping("/update")
 	public Board update(Board board) {
 		if(board.getBattach() != null && !board.getBattach().isEmpty()) {
@@ -112,17 +113,18 @@ public class BoardController {
 		return board;
 	}
 	
-	@Secured("ROLE_USER")
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	@DeleteMapping("/delete/{bno}")
 	public void delete(@PathVariable int bno) {
 		boardService.delete(bno);
 	}
 	
+	@PreAuthorize("hasAuthority('ROLE_USER')")
 	@GetMapping("/battach/{bno}")
 	public void battach(@PathVariable int bno, HttpServletResponse response) {
 		//해당 게시물 가져오기
 		Board board = boardService.getBoard(bno);
-		//파일 이름이 한글이 ㄹ경우, 브라우저에서 한글 이름으로 다운로드 받기 위한 코드
+		//파일 이름이 한글일 경우, 브라우저에서 한글 이름으로 다운로드 받기 위한 코드
 		try {
 			String fileName = new String(board.getBattachoname().getBytes("UTF-8"), "ISO-8859-1");
 			response.setHeader("Content-Disposition", "attachment; filename=\"" + fileName + "\"");

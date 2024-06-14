@@ -32,8 +32,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		//AccessToken얻기
+		
 		String accessToken = null;
+		//요청 헤더에서 AccessToken얻기
 		HttpServletRequest httpServletRequest = (HttpServletRequest) request;
 		//HTTP 요청 헤더값에 Authorization의 값을 받아온다.
 		String headerValue = httpServletRequest.getHeader("Authorization");
@@ -43,6 +44,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter{
 			accessToken = headerValue.substring(7);
 			log.info(accessToken);
 		}
+		
+		
+		
+		 //쿼리스트링으로 전달된 AccessToken 얻기 //<img src="/board/battach/1?accessToken=???"/>
+		 if(accessToken == null) { //요청 헤더에 accessToken이 존재하지 않다면
+		 if(request.getParameter("accessToken") != null) { accessToken =
+		 request.getParameter("accessToken"); } }
+		 
 		
 		if(accessToken != null) {
 			//AccessToken 유효성 검사

@@ -25,7 +25,11 @@ public class BoardService {
    }
    
    public Board getBoard(int bno) {
-      return boardsDao.selectByBno(bno);
+	  //board를 읽어오기전 조회수를 올려주고
+	  boardsDao.updateBhitcount(bno);
+	  //board를 읽어온다.
+	  Board board = boardsDao.selectByBno(bno);
+      return board;
    }
 
    public int update(Board board) {
